@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+ <sqlMap namespace="menu">
+
+	<typeAlias alias="userRequest" type="com.jk.model.user.UserRequest"/>
+	<typeAlias alias="userResponse" type="com.jk.model.user.UserResponse"/>
+	<typeAlias alias="rolesRequest" type="com.jk.model.roles.RolesRequest"/>
+	<typeAlias alias="rolesResponse" type="com.jk.model.roles.RolesResponse"/>
+	<typeAlias alias="menuRequest" type="com.jk.model.menu.MenuRequest"/>
+	<typeAlias alias="menuResponse" type="com.jk.model.menu.MenuResponse"/>
+	
+	<!-- 查询权限列表 -->
+	<select id="selectMenuListJson" parameterClass="menuRequest" resultClass="menuResponse">
+		select m.t_id as "id", 
+			m.t_name as "name", 
+			m.t_url as "url", 
+			m.t_pid as "pid",
+			m.t_type as "type",
+			m.t_parent as "isParent" 
+		from t_menus m where m.t_delete = 0
+		order by m.t_id
+	</select>
+	
+	<!-- 查询一级权限列表 -->
+	<select id="selectFirstMenuList" parameterClass="menuRequest" resultClass="menuResponse">
+		select m.t_id as "id", 
+			m.t_name as "name"
+		from t_menus m
+		where m.t_pid = 0 
+		order by m.t_id
+	</select>
+	
+	<!-- 添加权限 -->
+	<insert id="insertMenu">
+		insert into t_menus
+		(t_id, t_name, t_url, t_pid, t_parent,t_type)
+		values
+		(t_menus_seq.nextval, #menuName#, #url#, 
+		#pid#, #isParent#, #menuType# )
+	
+	</insert>
+	
+	<!--逻辑删除一条权限  -->
+	<update id="deleteByMenu" parameterClass="menuRequest">
+	
+		update t_menus set t_delete = 1 where t_id = #menuId#
+	</update>
+	
+	
+	
+ </sqlMap>

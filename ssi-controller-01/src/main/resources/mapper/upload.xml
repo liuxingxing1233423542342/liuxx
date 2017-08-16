@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+<sqlMap namespace="upload">
+
+	<!-- 为类起别名，使用的时候比较方便 -->
+	<typeAlias alias="upload" type="com.jk.model.upload.Upload"/>
+	
+	<!-- 查询图片 -->
+	<select id="selectFileByMD5" parameterClass="upload" resultClass="upload">
+		select t_md5 as "mdFive",
+			t_file_addr as "fileAddr" 
+		 from t_upload where t_md5 = #mdFive# 
+	</select>
+	
+	<!-- 添加 图片 -->
+	<insert id="insertUploadFile" parameterClass="upload" >
+		insert into t_upload
+			(t_id, t_md5, t_file_addr)
+		values
+			(t_upload_seq.nextval,#mdFive#,#fileAddr#)
+		
+	</insert>
+		
+</sqlMap>

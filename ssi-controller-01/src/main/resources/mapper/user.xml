@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+<sqlMap namespace="user">
+
+	<!-- 为数据类型起别名 -->
+	<typeAlias alias="userRequest" type="com.jk.model.user.UserRequest"/>
+	<typeAlias alias="userResponse" type="com.jk.model.user.UserResponse"/>
+	<typeAlias alias="rolesRequest" type="com.jk.model.roles.RolesRequest"/>
+	<typeAlias alias="rolesResponse" type="com.jk.model.roles.RolesResponse"/>
+	<typeAlias alias="menuRequest" type="com.jk.model.menu.MenuRequest"/>
+	<typeAlias alias="menuResponse" type="com.jk.model.menu.MenuResponse"/>
+	
+	
+	<resultMap class="com.jk.model.user.UserResponse" id="userResponseMap">
+		<result property="userId" column="t_id"/>
+		<result property="userName" column="t_account"/>
+		<result property="userPwd" column="t_pwd"/>
+	</resultMap>
+	
+
+	<!-- 为类起别名，使用的时候比较方便 -->
+	<typeAlias alias="user" type="com.jk.model.user.User"/>
+		
+
+	<!-- 根据ID删除user-->
+	<update id="deleteByUser" parameterClass="user">
+	
+	update t_user set t_delete=1 where t_id = #userId#
+	
+	</update>
+	
+	<!-- 根据ID查询user-->
+	<select id="selectUserById" resultClass="userRequest">
+		select  t_id as "userId",
+			t_account as "userName",
+			t_pwd as "userPwd"
+		from t_user where t_id = #userId#
+	</select> 
+	
+	<!-- 根据ID修改-->
+	<update id="updateUser" parameterClass="userRequest">
+		update t_user set t_account = #userName#,t_pwd = #userPwd# where t_id = #userId#
+	</update>
+	 
+	 
+	 <!-- 查询用户列表 -->
+	 <select id="selectUserList" parameterClass="userRequest" resultClass="userResponse">
+		select u2.* from (
+			select u1.*, rownum as rm from (
+				select t_id as "userId" ,t_account as "userName",t_pwd as "userPwd"
+		from t_user u where t_delete = 0
+			) u1
+			where rownum <![CDATA[<=]]> #endPos#
+		) u2
+		where u2.rm >= #startPos#
+		
+	</select>
+	 
+	 <!-- 添加用户 -->
+	 <insert id="insertUser" parameterClass="user">
+		<selectKey keyProperty="userId" resultClass="int">
+			select t_user_seq.nextval as "userId" from dual
+		</selectKey>
+		insert into t_user
+		(t_id,t_account,t_pwd)
+		values
+		(#userId#,#userName#,#userPwd#)
+	</insert>
+	 
+
+	<!-- 登录 -->
+ 	<select id="loginUser" parameterClass="userRequest" resultClass="userResponse">
+		select t_id as "userId",
+			t_account as "userName",
+			t_pwd as "userPwd",
+			t_login_fail_num as "loginFailNum",
+			(sysdate - t_login_fail_date) * 24 * 60 * 60 * 1000 as "loginFailDate"
+		from t_user
+		where t_account = #userName#
+	</select>
+
+	<!-- 修改登录失败的次数 -->
+	<update id="updateLoginFailNum">
+		update t_user 
+		set t_login_fail_num = #loginFailNum#,
+		t_login_fail_date = sysdate
+		where t_account = #userName#
+	</update> 
+	
+	
+	<!-- 查询t_users列表 -->
+	<select id="selectUserRoleListJson" parameterClass="rolesRequest" resultClass="rolesResponse">
+		
+	select r.t_id as "id", 
+		r.t_name as "name",
+		NVL2(m1.t_roles_id,1,0) as "checked"
+		 from t_roles r 
+		 left join (select m.t_roles_id from t_u_r_mid m where m.t_user_id = #userId#) m1  
+		 on r.t_id = m1.t_roles_id
+	</select> 
+	
+	<!-- 删除用户所有的角色 -->
+	<delete id="deleteAllRolesByUserID">
+		delete from t_u_r_mid
+		where t_user_id = #userId#
+	</delete>
+	
+	<!-- 添加用户的角色 -->
+	<insert id="insertUserRoleList" >
+		insert into t_u_r_mid
+		(t_id, t_user_id, t_roles_id)
+		values
+		(t_u_r_mid_seq.nextval, #userId#, #rolesId#)
+	</insert>
+	
+	<!-- 查询用户总条数 -->
+	<select id="selectUserCount" parameterClass="user" resultClass="int">
+		select count(1) from t_user where t_delete = 0
+	</select>
+	
+	<!-- 查询主页菜单树列表 -->
+	<select id="selectTreeListJson" parameterClass="menuRequest" resultClass="java.util.HashMap">
+		select m3.t_id as "id",
+		       m3.t_name as "text",
+		       m3.t_url as "href",
+		       m3.t_pid as "pid"
+		from t_menus m3
+		right join (
+		            select distinct t_menus_id from t_r_m_mid m1
+		            right join (select t_roles_id from t_u_r_mid where t_user_id = #userId#) m2
+		            on m1.t_role_id = m2.t_roles_id) m4
+		on m3.t_id = m4.t_menus_id 
+		where m3.t_pid = #pid#
+		and m3.t_type = 0
+		order by m3.t_id
+
+	</select>
+	
+	
+	<!-- 查询用户权限列表 -->
+	<select id="selectUserMenuListJson" parameterClass="menuRequest" resultClass="menuResponse">
+		select distinct m.t_id as "id", 
+	      m.t_name as "name", 
+	      m.t_url as "url", 
+	      m.t_pid as "pid", 
+	      m.t_type as "type", 
+	      nvl2(m1.t_role_id, 1, 0) as "checked",
+	      m.t_parent as "isParent" 
+	    from t_menus m
+	    right join (select m2.t_role_id, m2.t_menus_id from t_r_m_mid m2) m1
+	    on m.t_id = m1.t_menus_id
+	    right join (select t_roles_id from t_u_r_mid where t_user_id = #userId#) m3
+	    on m1.t_role_id = m3.t_roles_id
+	    order by m.t_id
+	</select>
+		
+</sqlMap>

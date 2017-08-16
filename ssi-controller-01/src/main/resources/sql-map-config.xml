@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- 基本配置 
+	useStatementNamespaces：映射文件是否使用命名空间
+	-->
+	<settings
+		cacheModelsEnabled="true"
+		enhancementEnabled="true"
+		lazyLoadingEnabled="false"
+		maxRequests="256"
+		maxSessions="256"
+		maxTransactions="150"
+		useStatementNamespaces="true" />
+		
+	<!-- 加载映射文件 -->
+	<sqlMap resource="mapper/user.xml" />
+	<sqlMap resource="mapper/role.xml" />
+	<sqlMap resource="mapper/menu.xml" />
+	<sqlMap resource="mapper/upload.xml" />
+	
+</sqlMapConfig>

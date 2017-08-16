@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/parent-ssi-01.iml" filepath="$PROJECT_DIR$/parent-ssi-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ssi-common-01/ssi-common-01.iml" filepath="$PROJECT_DIR$/ssi-common-01/ssi-common-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ssi-controller-01/ssi-controller-01.iml" filepath="$PROJECT_DIR$/ssi-controller-01/ssi-controller-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ssi-dao-01/ssi-dao-01.iml" filepath="$PROJECT_DIR$/ssi-dao-01/ssi-dao-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ssi-model-01/ssi-model-01.iml" filepath="$PROJECT_DIR$/ssi-model-01/ssi-model-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ssi-service-01/ssi-service-01.iml" filepath="$PROJECT_DIR$/ssi-service-01/ssi-service-01.iml" />
+    </modules>
+  </component>
+</project>
