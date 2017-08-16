@@ -1,0 +1,10 @@
+# 号 代表注释
+
+# 忽略.idea文件和目录
+.idea
+
+# 忽略*.iml文件和目录
+*.iml
+
+# 忽略target文件和目录
+target
